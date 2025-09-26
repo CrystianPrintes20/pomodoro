@@ -1,11 +1,11 @@
 {
   "expo": {
-    "name": "fokus",
-    "slug": "fokus",
+    "name": "Fokus",
+    "slug": "Fokus",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "fokus",
+    "scheme": "Fokus",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
@@ -19,7 +19,8 @@
         "monochromeImage": "./assets/images/android-icon-monochrome.png"
       },
       "edgeToEdgeEnabled": true,
-      "predictiveBackGestureEnabled": false
+      "predictiveBackGestureEnabled": false,
+      "package": "com.crystian20.Fokus"
     },
     "web": {
       "output": "static",
@@ -43,6 +44,12 @@
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "025c3772-ebde-4923-bc1f-1e795553db1f"
+      }
     }
   }
 }

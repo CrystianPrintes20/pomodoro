@@ -12,7 +12,7 @@ import {
   StyleSheet,
   Text,
   Vibration,
-  View
+  View,
 } from "react-native";
 
 import { Audio } from "expo-av";
@@ -79,7 +79,6 @@ export default function Index() {
     } catch {
       // se falhar, segue sem som
     }
-
   };
 
   const onFinish = async () => {
