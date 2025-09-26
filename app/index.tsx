@@ -1,36 +1,67 @@
+// app/index.tsx (ou onde fica sua tela principal)
 import ActionButton from "@/components/ActionButton";
 import FocusButton from "@/components/FocusButton";
 import { IconPause, IconPlay } from "@/components/Icons";
 import Timer from "@/components/Timer";
-import { useRef, useState } from "react";
-import { Image, ScrollView, StyleSheet, Text, View } from "react-native";
+import { pomodoro } from "@/constants/pomodoroData";
 
-const pomodoro = [
-  {
-    id: "focus",
-    initialValue: 25 * 60,
-    image: require("./assets/pomodoro.png"),
-    display: "Focus",
-  },
-  {
-    id: "short",
-    initialValue: 5 * 60,
-    image: require("./assets/short.png"),
-    display: "Short break",
-  },
-  {
-    id: "long",
-    initialValue: 15 * 60,
-    image: require("./assets/long.png"),
-    display: "Long break",
-  },
-];
+import React, { useEffect, useRef, useState } from "react";
+import {
+  Image,
+  ScrollView,
+  StyleSheet,
+  Text,
+  Vibration,
+  View
+} from "react-native";
+
+import { Audio } from "expo-av";
+
+const SOUND_REQUIRE = require("../assets/audio/ding.wav");
 
 export default function Index() {
   const [timerType, setTimerType] = useState(pomodoro[0]);
   const [seconds, setSeconds] = useState(pomodoro[0].initialValue);
   const [timerRunning, setTimerRunning] = useState(false);
-  const timerRef = useRef<number | null>(null);
+  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  const latestTimerTypeRef = useRef(timerType);
+  useEffect(() => {
+    latestTimerTypeRef.current = timerType;
+  }, [timerType]);
+
+  // ===== GERENCIAMENTO DO SOM (Expo-AV) =====
+  const soundRef = useRef<Audio.Sound | null>(null);
+
+  useEffect(() => {
+    let mounted = true;
+
+    (async () => {
+      try {
+        const { sound } = await Audio.Sound.createAsync(SOUND_REQUIRE, {
+          shouldPlay: false,
+          volume: 1.0,
+        });
+        if (!mounted) {
+          await sound.unloadAsync();
+          return;
+        }
+        soundRef.current = sound;
+      } catch (e) {
+        console.warn("Falha ao carregar som:", e);
+      }
+    })();
+
+    // cleanup geral (intervalo + som)
+    return () => {
+      mounted = false;
+      if (timerRef.current) {
+        clearInterval(timerRef.current);
+        timerRef.current = null;
+      }
+      soundRef.current?.unloadAsync().catch(() => {});
+    };
+  }, []);
 
   const clear = () => {
     if (timerRef.current !== null) {
@@ -38,6 +69,23 @@ export default function Index() {
       timerRef.current = null;
       setTimerRunning(false);
     }
+  };
+
+  const notify = async () => {
+    Vibration.vibrate(400);
+
+    try {
+      await soundRef.current?.replayAsync();
+    } catch {
+      // se falhar, segue sem som
+    }
+
+  };
+
+  const onFinish = async () => {
+    await notify();
+    const currentType = latestTimerTypeRef.current;
+    setSeconds(currentType.initialValue);
   };
 
   const toggleTimerType = (newTimerType: (typeof pomodoro)[0]) => () => {
@@ -55,14 +103,16 @@ export default function Index() {
     setTimerRunning(true);
 
     const id = setInterval(() => {
-      setSeconds((oldState) => {
-        if (oldState === 0) {
+      setSeconds((old) => {
+        if (old <= 0) {
           clear();
-          return timerType.initialValue;
+          onFinish();
+          return 0;
         }
-        return oldState - 1;
+        return old - 1;
       });
     }, 1000);
+
     timerRef.current = id;
   };
 
@@ -82,6 +132,7 @@ export default function Index() {
         </View>
 
         <Timer totalSeconds={seconds} />
+
         <FocusButton
           title={timerRunning ? "Stop" : "Start"}
           icons={timerRunning ? <IconPause /> : <IconPlay />}
@@ -91,7 +142,7 @@ export default function Index() {
 
       <View style={styles.footer}>
         <Text style={styles.footerText}>Crystian Printes</Text>
-        <Text style={styles.footerText}>© 2023 Fokus</Text>
+        <Text style={styles.footerText}>© 2025 Fokus</Text>
       </View>
     </ScrollView>
   );
@@ -99,7 +150,7 @@ export default function Index() {
 
 const styles = StyleSheet.create({
   scrollContainer: {
-    flexGrow: 1, // permite o scroll ocupar todo o espaço
+    flexGrow: 1,
     backgroundColor: "#021123",
     alignItems: "center",
     justifyContent: "center",
