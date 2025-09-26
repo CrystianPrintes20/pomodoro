@@ -35,6 +35,16 @@ npm run reset-project
 
 This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
 
+## Screenshot
+<img width="217" height="467" alt="image" src="https://github.com/user-attachments/assets/b21fd4ff-0fa3-4170-90e4-b4baefc4e8f1" />
+
+<img width="215" height="465" alt="image" src="https://github.com/user-attachments/assets/8dd2d937-293e-4388-9efd-84e3dbe22e70" />
+
+<img width="215" height="466" alt="image" src="https://github.com/user-attachments/assets/a0c51cd8-f3f2-4ca3-b70e-6657dbd0dfcf" />
+
+
+
+
 ## Learn more
 
 To learn more about developing your project with Expo, look at the following resources:
